@@ -1,5 +1,3 @@
-import * as querystring from "querystring";
-
 export default function handler(req: any, res: any) {
   try {
     const access_token = req.query.accessToken;
@@ -22,7 +20,7 @@ export default function handler(req: any, res: any) {
           console.log(
             "Unauthorized Response Recieved From Spotify. Access Token Likely Expired."
           );
-          // Return a 401 response
+          // HACK: Return a 200 response
           return res.status(200).json({ status: 401 });
         }
       }

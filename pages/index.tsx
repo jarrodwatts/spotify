@@ -5,22 +5,24 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Link from "../src/Link";
 import { useRouter } from "next/router";
-import { access, accessSync } from "fs";
-import { StringifyOptions } from "querystring";
-
-const getCookie = (name: String): String | undefined => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts && parts.length === 2) {
-    return parts.pop().split(";").shift();
-  } else {
-    return undefined;
-  }
-};
+import Grow from "@material-ui/core/Grow";
+import getCookie from "../lib/getCookie";
+import ArtistCard from "../components/ArtistCard";
 
 export default function Index() {
   const router = useRouter();
   const [topTracks, setTopTracks] = useState([]);
+  const [topArtistsLongTerm, setTopArtistsLongTerm] = useState([]);
+  const [topArtistsMidTerm, setTopArtistsMidTerm] = useState([]);
+  const [topArtistsShortTerm, setTopArtistsShortTerm] = useState([]);
+  const [detailToggles, updateDetailToggles] = useState({
+    topArtistsLongTerm: false,
+    topArtistsMidTerm: false,
+    topArtistsShortTerm: false,
+    topTracksLongTerm: false,
+    topTracksMidTerm: false,
+    topTracksShortTerm: false,
+  });
 
   const getAuthorizationCode = async (): Promise<Response> => {
     const req = await fetch("/api/authorize");
@@ -86,19 +88,39 @@ export default function Index() {
     // pass to state
     console.log("Returned tracks:", res);
     setTopTracks(res);
-    
   };
 
-  return (
-    <Container maxWidth="md" style={{ padding: "64px" }}>
-      <Grid container direction="column" spacing={3}>
-        <Grid item>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Spotify Playlist Expander
-          </Typography>
-        </Grid>
-      </Grid>
+  const requestTopArtistsLongTerm = async (): Promise<any> => {
+    const accessToken = await getNewAccessToken();
+    const req = await fetch(`api/getTopArtistsLongTerm/${accessToken}`);
+    const res = await req.json();
+    setTopArtistsLongTerm(res);
+  };
 
+  const requestTopArtistsMidTerm = async (): Promise<any> => {
+    const accessToken = await getNewAccessToken();
+    const req = await fetch(`api/getTopArtistsMidTerm/${accessToken}`);
+    const res = await req.json();
+    setTopArtistsMidTerm(res);
+  };
+
+  const requestTopArtistsShortTerm = async (): Promise<any> => {
+    const accessToken = await getNewAccessToken();
+    const req = await fetch(`api/getTopArtistsShortTerm/${accessToken}`);
+    const res = await req.json();
+    setTopArtistsShortTerm(res);
+  };
+
+  useEffect(() => {
+    if (getCookie("access_token")) {
+      requestTopArtistsLongTerm();
+      requestTopArtistsMidTerm();
+      requestTopArtistsShortTerm();
+    }
+  }, []);
+
+  return (
+    <Container maxWidth="lg" style={{ padding: "64px" }}>
       {/* 1. User Authorization Request
         Sending: Redirecting Users to an Auth page containing our applications' client id
         Recieving: Recieving a unique authorization code
@@ -124,16 +146,166 @@ export default function Index() {
         Get Top Songs
       </Button>
 
-      <Grid container direction="row" spacing={2} style={{ padding: "32px" }}>
-        {topTracks.map((track, index) => (
-          <Grid item xs={12} key={track.external_ids.isrc}>
-            <Typography>
-              Track Number <b>{index + 1} </b>
-              is <b>{track.name} </b> by
-              <b> {track.artists[0].name}</b>
-            </Typography>
+      <Grid
+        container
+        direction="column"
+        alignItems="center"
+        style={{ marginTop: "16px" }}
+        spacing={3}
+      >
+        <Grid item xs={12}>
+          <Typography variant="h2" component="h1">
+            Your Spotify Profile Summary
+          </Typography>
+
+          <Typography variant="h4" component="h2" style={{ marginTop: "32px" }}>
+            Your Top Artists
+          </Typography>
+
+          <Typography
+            variant="subtitle2"
+            component="h6"
+            style={{ marginTop: "8px" }}
+          >
+            Long Term (Several Years)
+          </Typography>
+
+          <Grid
+            container
+            item
+            xs={12}
+            direction="row"
+            spacing={2}
+            style={{ marginTop: "4px", marginBottom: "4px" }}
+          >
+            {topArtistsLongTerm.map((artist, index) =>
+              detailToggles.topArtistsLongTerm ? (
+                <Grow in={true} timeout={1000} key={index}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <ArtistCard artist={artist} cardType={"big"} />
+                  </Grid>
+                </Grow>
+              ) : (
+                <Grid item xs={4} sm={3} md={1} key={index}>
+                  <ArtistCard artist={artist} cardType={"small"} />
+                </Grid>
+              )
+            )}
+            <Grid
+              container
+              direction="column"
+              alignItems="flex-end"
+              justify="flex-end"
+            >
+              <Button
+                onClick={() =>
+                  updateDetailToggles({
+                    ...detailToggles,
+                    topArtistsLongTerm: !detailToggles.topArtistsLongTerm,
+                  })
+                }
+              >
+                {detailToggles.topArtistsLongTerm ? "Hide" : "Expand"}
+              </Button>
+            </Grid>
           </Grid>
-        ))}
+
+          <Typography
+            variant="subtitle2"
+            component="h6"
+            style={{ marginTop: "8px" }}
+          >
+            Medium Term (6 Months)
+          </Typography>
+
+          <Grid
+            container
+            item
+            xs={12}
+            direction="row"
+            spacing={2}
+            style={{ marginTop: "4px", marginBottom: "4px" }}
+          >
+            {topArtistsMidTerm.map((artist, index) =>
+              detailToggles.topArtistsMidTerm ? (
+                <Grow in={true} timeout={1000} key={index}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <ArtistCard artist={artist} cardType={"big"} />
+                  </Grid>
+                </Grow>
+              ) : (
+                <Grid item xs={4} sm={3} md={1} key={index}>
+                  <ArtistCard artist={artist} cardType={"small"} />
+                </Grid>
+              )
+            )}
+            <Grid
+              container
+              direction="column"
+              alignItems="flex-end"
+              justify="flex-end"
+            >
+              <Button
+                onClick={() =>
+                  updateDetailToggles({
+                    ...detailToggles,
+                    topArtistsMidTerm: !detailToggles.topArtistsMidTerm,
+                  })
+                }
+              >
+                {detailToggles.topArtistsMidTerm ? "Hide" : "Expand"}
+              </Button>
+            </Grid>
+          </Grid>
+
+          <Typography
+            variant="subtitle2"
+            component="h6"
+            style={{ marginTop: "8px" }}
+          >
+            Short Term (4 Weeks)
+          </Typography>
+
+          <Grid
+            container
+            item
+            xs={12}
+            direction="row"
+            spacing={2}
+            style={{ marginTop: "4px", marginBottom: "4px" }}
+          >
+            {topArtistsShortTerm.map((artist, index) =>
+              detailToggles.topArtistsShortTerm ? (
+                <Grow in={true} timeout={1000} key={index}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <ArtistCard artist={artist} cardType={"big"} />
+                  </Grid>
+                </Grow>
+              ) : (
+                <Grid item xs={4} sm={3} md={1} key={index}>
+                  <ArtistCard artist={artist} cardType={"small"} />
+                </Grid>
+              )
+            )}
+            <Grid
+              container
+              direction="column"
+              alignItems="flex-end"
+              justify="flex-end"
+            >
+              <Button
+                onClick={() =>
+                  updateDetailToggles({
+                    ...detailToggles,
+                    topArtistsShortTerm: !detailToggles.topArtistsShortTerm,
+                  })
+                }
+              >
+                {detailToggles.topArtistsShortTerm ? "Hide" : "Expand"}
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
       </Grid>
     </Container>
   );
