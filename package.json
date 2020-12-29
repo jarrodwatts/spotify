@@ -9,6 +9,7 @@
     "@emotion/styled": "latest",
     "@material-ui/core": "next",
     "clsx": "latest",
+    "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "next": "latest",
     "querystring": "^0.2.0",
@@ -17,7 +18,7 @@
     "swr": "^0.3.11"
   },
   "scripts": {
-    "dev": "next",
+    "dev": "cross-env NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
     "start": "next start",
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"

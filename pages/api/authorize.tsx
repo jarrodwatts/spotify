@@ -2,11 +2,6 @@
 import * as querystring from "querystring";
 
 export default function handler(req: any, res: any) {
-  // Here is where we need to make a request to
-  // The /authorize endpoint from spotify
-  // We'll need to pass it the :
-  // - client_id, response_type, redirect_uri, state, scope, show_dialog
-
   try {
     const scope =
       "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-read-currently-playing user-top-read";
@@ -14,7 +9,7 @@ export default function handler(req: any, res: any) {
     const spotifyUrl =
       "https://accounts.spotify.com/authorize?" +
       querystring.stringify({
-        client_id: "406b705ff93f4b619a6f9add5c4a898c",
+        client_id: process.env.SPOTIFY_CLIENT_ID,
         response_type: "code",
         redirect_uri: "http://localhost:3000/",
         //state: state,
@@ -22,10 +17,11 @@ export default function handler(req: any, res: any) {
         show_dialog: false,
       });
 
-    console.log(spotifyUrl);
-
+    // Send back the redirect url provided by the code generated above.
     res.status(200).json({ url: spotifyUrl });
   } catch (error) {
     console.log(error);
+    // Send back a 400 response to indicate a bad request
+    res.status(400);
   }
 }
