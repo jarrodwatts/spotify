@@ -8,10 +8,14 @@ import { useRouter } from "next/router";
 import { access, accessSync } from "fs";
 import { StringifyOptions } from "querystring";
 
-const getCookie = (name: String) => {
+const getCookie = (name: String): String | undefined => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(";").shift();
+  if (parts && parts.length === 2) {
+    return parts.pop().split(";").shift();
+  } else {
+    return undefined;
+  }
 };
 
 export default function Index() {
@@ -46,15 +50,43 @@ export default function Index() {
     }
   };
 
+  const getNewAccessToken = async (): Promise<String | undefined> => {
+    // Goal: To get a new access token with a given refresh token
+    let refreshToken: String | undefined = getCookie("refresh_token");
+    if (refreshToken) {
+      let req = await fetch(`api/getNewAccessToken/${refreshToken}`);
+      console.log("getNewAccessToken req:", req);
+      let res = await req.json();
+      console.log("getNewAccessToken res:", res);
+      if (res.access_token) {
+        document.cookie = `access_token=${res.access_token}`;
+        return res.access_token;
+      } else {
+        return undefined;
+      }
+    } else {
+      return undefined;
+    }
+  };
+
   const requestTopSongs = async (): Promise<any> => {
-    const accessToken = getCookie("access_token");
-    const req = await fetch(`api/getTopTracks/${accessToken}`);
+    let accessToken: String | undefined = getCookie("access_token");
+    let req = await fetch(`api/getTopTracks/${accessToken}`);
+    let res = await req.json();
 
-    const tracks = await req.json();
-
+    if (res.status == 401) {
+      // Need a new access token
+      accessToken = await getNewAccessToken();
+      // Try Again
+      console.log("requestTopSongs accessToken:", accessToken);
+      //accessToken = getCookie("access_token");
+      req = await fetch(`api/getTopTracks/${accessToken}`);
+      res = await req.json();
+    }
     // pass to state
-    console.log("Returned tracks:", tracks);
-    setTopTracks(tracks);
+    console.log("Returned tracks:", res);
+    setTopTracks(res);
+    
   };
 
   return (
@@ -103,7 +135,6 @@ export default function Index() {
           </Grid>
         ))}
       </Grid>
-
     </Container>
   );
 }

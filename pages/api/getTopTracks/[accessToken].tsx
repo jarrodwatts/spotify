@@ -1,4 +1,3 @@
-// Here is the file we want to make the Node JS Request for the user to login to.
 import * as querystring from "querystring";
 
 export default function handler(req: any, res: any) {
@@ -16,11 +15,21 @@ export default function handler(req: any, res: any) {
 
       const { items } = await trackData.json();
 
-      return res.status(200).json(items);
+      if (items) {
+        return res.status(200).json(items);
+      } else {
+        if (trackData.status === 401) {
+          console.log(
+            "Unauthorized Response Recieved From Spotify. Access Token Likely Expired."
+          );
+          // Return a 401 response
+          return res.status(200).json({ status: 401 });
+        }
+      }
     };
     return getData();
   } catch (error) {
     console.error("Error Occurred Getting Top Songs:", error);
-    return res.stats(400);
+    return res.status(400);
   }
 }
