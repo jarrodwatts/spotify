@@ -1,7 +1,7 @@
 export default function handler(req: any, res: any) {
   try {
     const { access_token, time_range } = req.query;
-    const TOP_ARTISTS_ENDPOINT = `https://api.spotify.com/v1/me/top/artists?limit=12&time_range=${time_range}`;
+    const TOP_ARTISTS_ENDPOINT = `https://api.spotify.com/v1/me/top/tracks?limit=12&time_range=${time_range}`;
 
     const getData = async () => {
       const trackData = await fetch(TOP_ARTISTS_ENDPOINT, {
@@ -12,17 +12,18 @@ export default function handler(req: any, res: any) {
 
       const { items } = await trackData.json();
 
-      const artists = items.map((artist: any) => ({
-        genres: artist.genres,
-        image: artist.images[0].url,
-        name: artist.name,
-        popularity: artist.popularity,
-        id: artist.id,
-        url: artist.external_urls.spotify,
+      const tracks = items.map((track: any) => ({
+        image: track.album.images[0].url,
+        name: track.name,
+        artist: track.artists[0].name,
+        popularity: track.popularity,
+        id: track.id,
+        url: track.external_urls.spotify,
+        preview_url: track.preview_url, 
       }));
 
-      if (artists) {
-        return res.status(200).json(artists);
+      if (tracks) {
+        return res.status(200).json(tracks);
       }
     };
     return getData();

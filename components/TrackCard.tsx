@@ -26,7 +26,7 @@ export default function ArtistCard(props: any) {
 
   // Destructure Props
   const cardType = props.cardType;
-  const { genres, image, name, popularity, id, url } = props.artist;
+  const { image, name, artist, popularity, id, url, preview_url } = props.track;
   const index = props.index;
 
   if (cardType == "big") {
@@ -51,7 +51,7 @@ export default function ArtistCard(props: any) {
                 </Grid>
                 <Grid item>
                   <Typography gutterBottom variant="subtitle2" component="p">
-                    {capitalize(genres[0]) + " Artist"}
+                    {artist}
                   </Typography>
                 </Grid>
 

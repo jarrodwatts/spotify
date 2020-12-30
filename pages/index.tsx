@@ -5,22 +5,28 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import { useRouter } from "next/router";
 import getCookie from "../lib/getCookie";
-import ArtistSection from "../components/ArtistSection";
+import CardSection from "../components/CardSection";
 import {
   getAuthorizationCode,
   getTokenObject,
   getNewAccessToken,
 } from "../lib/auth/getAuthorization";
+import Divider from "@material-ui/core/Divider";
 
 export default function Index() {
   const router = useRouter();
   const [topArtistsLongTerm, setTopArtistsLongTerm] = useState([]);
+  const [topArtistsMediumTerm, setTopArtistsMediumTerm] = useState([]);
+  const [topArtistsShortTerm, setTopArtistsShortTerm] = useState([]);
+  const [topTracksLongTerm, setTopTracksLongTerm] = useState([]);
+  const [topTracksMediumTerm, setTopTracksMediumTerm] = useState([]);
+  const [topTracksShortTerm, setTopTracksShortTerm] = useState([]);
   const [detailToggles, updateDetailToggles] = useState({
     topArtistsLongTerm: false,
-    topArtistsMidTerm: false,
+    topArtistsMediumTerm: false,
     topArtistsShortTerm: false,
     topTracksLongTerm: false,
-    topTracksMidTerm: false,
+    topTracksMediumTerm: false,
     topTracksShortTerm: false,
   });
 
@@ -33,13 +39,53 @@ export default function Index() {
         `api/getArtists?access_token=${accessToken}&time_range=${timeRange}`
       );
       const res = await req.json();
-      setTopArtistsLongTerm(res);
+
+      switch (timeRange) {
+        case "long_term":
+          setTopArtistsLongTerm(res);
+          break;
+        case "medium_term":
+          setTopArtistsMediumTerm(res);
+          break;
+        case "short_term":
+          setTopArtistsShortTerm(res);
+          break;
+      }
+    }
+  };
+
+  const requestToptracksForTimeRange = async (
+    timeRange: String
+  ): Promise<any> => {
+    if (getCookie("refresh_token")) {
+      const accessToken = await getNewAccessToken();
+      const req = await fetch(
+        `api/getTracks?access_token=${accessToken}&time_range=${timeRange}`
+      );
+      const res = await req.json();
+
+      switch (timeRange) {
+        case "long_term":
+          setTopTracksLongTerm(res);
+          break;
+        case "medium_term":
+          setTopTracksMediumTerm(res);
+          break;
+        case "short_term":
+          setTopTracksShortTerm(res);
+          break;
+      }
     }
   };
 
   useEffect(() => {
     if (getCookie("access_token")) {
       requestTopArtistsForTimeRange("long_term");
+      requestTopArtistsForTimeRange("medium_term");
+      requestTopArtistsForTimeRange("short_term");
+      requestToptracksForTimeRange("long_term");
+      requestToptracksForTimeRange("medium_term");
+      requestToptracksForTimeRange("short_term");
     }
   }, []);
 
@@ -71,8 +117,9 @@ export default function Index() {
           </Typography>
         </Grid>
 
-        <ArtistSection
-          artists={topArtistsLongTerm}
+        <CardSection
+          type={"artist"}
+          data={topArtistsLongTerm}
           timePeriod={"long"}
           detailToggle={detailToggles.topArtistsLongTerm}
           changeToggle={(value: boolean) =>
@@ -82,6 +129,80 @@ export default function Index() {
             })
           }
         />
+        <Divider style={{ width: "100%" }} />
+        <CardSection
+          type={"artist"}
+          data={topArtistsMediumTerm}
+          timePeriod={"medium"}
+          detailToggle={detailToggles.topArtistsMediumTerm}
+          changeToggle={(value: boolean) =>
+            updateDetailToggles({
+              ...detailToggles,
+              topArtistsMediumTerm: value,
+            })
+          }
+        />
+        <Divider style={{ width: "100%" }} />
+        <CardSection
+          type={"artist"}
+          data={topArtistsShortTerm}
+          timePeriod={"short"}
+          detailToggle={detailToggles.topArtistsShortTerm}
+          changeToggle={(value: boolean) =>
+            updateDetailToggles({
+              ...detailToggles,
+              topArtistsShortTerm: value,
+            })
+          }
+        />
+        <Divider style={{ width: "100%" }} />
+
+        <Grid item style={{ marginTop: "8px" }}>
+          <Typography variant="h4" component="h2">
+            Your Top Tracks
+          </Typography>
+        </Grid>
+        <CardSection
+          type={"track"}
+          data={topTracksLongTerm}
+          timePeriod={"long"}
+          detailToggle={detailToggles.topTracksLongTerm}
+          changeToggle={(value: boolean) =>
+            updateDetailToggles({
+              ...detailToggles,
+              topTracksLongTerm: value,
+            })
+          }
+        />
+        <Divider style={{ width: "100%" }} />
+
+        <CardSection
+          type={"track"}
+          data={topTracksMediumTerm}
+          timePeriod={"medium"}
+          detailToggle={detailToggles.topTracksMediumTerm}
+          changeToggle={(value: boolean) =>
+            updateDetailToggles({
+              ...detailToggles,
+              topTracksMediumTerm: value,
+            })
+          }
+        />
+        <Divider style={{ width: "100%" }} />
+
+        <CardSection
+          type={"track"}
+          data={topTracksShortTerm}
+          timePeriod={"short"}
+          detailToggle={detailToggles.topTracksShortTerm}
+          changeToggle={(value: boolean) =>
+            updateDetailToggles({
+              ...detailToggles,
+              topTracksShortTerm: value,
+            })
+          }
+        />
+        <Divider style={{ width: "100%" }} />
       </Grid>
     </Container>
   );

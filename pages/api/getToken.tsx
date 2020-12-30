@@ -37,7 +37,7 @@ export default function handler(req: any, res: any) {
 
     return getAccessToken();
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 }

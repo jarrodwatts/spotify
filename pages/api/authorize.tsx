@@ -20,7 +20,7 @@ export default function handler(req: any, res: any) {
     // Send back the redirect url provided by the code generated above.
     res.status(200).json({ url: spotifyUrl });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     // Send back a 400 response to indicate a bad request
     res.status(400);
   }
