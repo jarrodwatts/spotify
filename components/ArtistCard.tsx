@@ -37,6 +37,7 @@ export default function ArtistCard(props: any) {
             <CardMedia className={classes.media} image={image} title={name} />
             <CardContent>
               <Grid
+                component="div"
                 container
                 direction="column"
                 justify="space-between"

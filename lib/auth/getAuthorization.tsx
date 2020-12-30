@@ -50,10 +50,10 @@ export const getTokenObject = async (
 export const getNewAccessToken = async (): Promise<String | undefined> => {
   let refreshToken: String | undefined = getCookie("refresh_token");
   if (refreshToken) {
-    let req: Response = await fetch(`api/getNewAccessToken?refresh_token=${refreshToken}`);
+    let req: Response = await fetch(`/api/getNewAccessToken?refresh_token=${refreshToken}`);
     let res = await req.json();
     if (res.access_token) {
-      document.cookie = `access_token=${res.access_token}`;
+      document.cookie = `access_token=${res.access_token}; path=/`;
       return res.access_token;
     }
   } else {

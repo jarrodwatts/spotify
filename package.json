@@ -8,6 +8,7 @@
     "@emotion/server": "latest",
     "@emotion/styled": "latest",
     "@material-ui/core": "next",
+    "@material-ui/icons": "^4.11.2",
     "clsx": "latest",
     "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
