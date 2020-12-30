@@ -1,10 +1,8 @@
-import * as querystring from "querystring";
-
 export default function handler(req: any, res: any) {
   try {
-    const access_token = req.query.accessToken;
-
-    const TOP_ARTISTS_ENDPOINT = `https://api.spotify.com/v1/me/top/artists?limit=12&time_range=short_term`;
+    const { access_token, time_range } = req.query;
+    console.log(access_token, time_range);
+    const TOP_ARTISTS_ENDPOINT = `https://api.spotify.com/v1/me/top/artists?limit=12&time_range=${time_range}`;
 
     const getData = async () => {
       const trackData = await fetch(TOP_ARTISTS_ENDPOINT, {

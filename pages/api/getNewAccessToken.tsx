@@ -2,7 +2,7 @@ import * as querystring from "querystring";
 
 export default function handler(req: any, res: any) {
   try {
-    const refresh_token = req.query.refreshToken;
+    const refresh_token = req.query.refresh_token;
 
     const spotifyUrl = "https://accounts.spotify.com/api/token";
 

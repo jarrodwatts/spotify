@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export default function handler(req: any, res: any) {
-  const userCode = req.query.userCode;
+  const userCode = req.query.user_code;
 
   try {
     const spotifyUrl = "https://accounts.spotify.com/api/token";
