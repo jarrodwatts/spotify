@@ -50,7 +50,9 @@ export const getTokenObject = async (
 export const getNewAccessToken = async (): Promise<String | undefined> => {
   let refreshToken: String | undefined = getCookie("refresh_token");
   if (refreshToken) {
-    let req: Response = await fetch(`/api/getNewAccessToken?refresh_token=${refreshToken}`);
+    let req: Response = await fetch(
+      `/api/getNewAccessToken?refresh_token=${refreshToken}`
+    );
     let res = await req.json();
     if (res.access_token) {
       document.cookie = `access_token=${res.access_token}; path=/`;
@@ -58,5 +60,21 @@ export const getNewAccessToken = async (): Promise<String | undefined> => {
     }
   } else {
     throw new Error(`No Access Token was returned back from getNewAccessToken`);
+  }
+};
+
+export const getUserId = async (
+  access_token: any
+): Promise<String | undefined> => {
+  if (access_token) {
+    const req: Response = await fetch(
+      `/api/getUserId?access_token=${access_token}`
+    );
+    console.log("A):", req);
+    const res = await req.json();
+    console.log("Got back recievedUserId:", res);
+    const id = res.id;
+    console.log("Id extract:", id);
+    return id;
   }
 };

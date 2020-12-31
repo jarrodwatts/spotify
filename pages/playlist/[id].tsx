@@ -7,6 +7,7 @@ import {
 } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -15,13 +16,16 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableFooter from "@material-ui/core/TableFooter";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
+import TableHead from "@material-ui/core/TableHead";
 import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
+import Tooltip from "@material-ui/core/Tooltip";
 import FirstPageIcon from "@material-ui/icons/FirstPage";
 import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 import LastPageIcon from "@material-ui/icons/LastPage";
+import Divider from "@material-ui/core/Divider";
 import getCookie from "../../lib/getCookie";
 import { getNewAccessToken } from "../../lib/auth/getAuthorization";
 import { useRouter } from "next/router";
@@ -120,6 +124,10 @@ const useStyles2 = makeStyles({
   table: {
     minWidth: 500,
   },
+  large: {
+    width: "64px",
+    height: "64px",
+  },
 });
 
 export default function PlaylistId({ queryId }) {
@@ -128,6 +136,7 @@ export default function PlaylistId({ queryId }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(50);
   const [playlistTracks, setPlaylistTracks] = useState([]);
+  const [playlistInformation, setPlaylistInformation] = useState({});
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -164,6 +173,15 @@ export default function PlaylistId({ queryId }) {
 
       console.log("Tacks:", tracks);
       setPlaylistTracks(tracks);
+      setPlaylistInformation({
+        url,
+        description,
+        followers,
+        id,
+        image,
+        name,
+        owner,
+      });
     }
   };
 
@@ -174,6 +192,7 @@ export default function PlaylistId({ queryId }) {
   }, []);
 
   console.log(playlistTracks);
+  console.log(playlistInformation);
   return (
     <Container maxWidth="lg" style={{ padding: "64px" }}>
       <Grid
@@ -190,14 +209,60 @@ export default function PlaylistId({ queryId }) {
         </Grid>
         <Grid item>
           <Typography variant="subtitle1" component="h2">
-            Here you can view your playlists, and use our Expando functionality
-            to create a playlist with new music you'll love!
+            Here you can view your playlist's tracks, and use our Expando
+            functionality to create a playlist with new music you'll love!
           </Typography>
+        </Grid>
+        <Divider style={{ width: "100%", marginBottom: "4px" }} />
+
+        <Grid container alignItems="center" item spacing={2}>
+          <Grid item>
+            <Avatar
+              alt={playlistInformation.name}
+              src={playlistInformation.image}
+              className={classes.large}
+            />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5" component="h5">
+              <b>{playlistInformation.name}</b> · {playlistInformation.owner} ·
+            </Typography>
+          </Grid>
+
+          <Grid item>
+            <Typography variant="subtitle1" component="p">
+              <b>{playlistInformation.followers} Followers</b>
+            </Typography>
+          </Grid>
+
+          <Grid item>
+            <Tooltip title="Create a new playlist with more songs similar to this one, based on the artists within it.">
+              <Button
+                onClick={() => router.push(`/expando/${queryId}`)}
+                variant="contained"
+                color="primary"
+              >
+                Expando this Playlist ❔
+              </Button>
+            </Tooltip>
+          </Grid>
+
+          <Grid container item>
+            {playlistInformation.description}
+          </Grid>
         </Grid>
       </Grid>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ marginTop: "16px" }}>
         <Table className={classes.table} aria-label="custom pagination table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Track</TableCell>
+              <TableCell>Album</TableCell>
+              <TableCell>Artist</TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
             {(rowsPerPage > 0
               ? playlistTracks.slice(
@@ -210,8 +275,9 @@ export default function PlaylistId({ queryId }) {
                 <TableCell component="th" scope="row">
                   <Avatar alt={track.name} src={track.image} />
                 </TableCell>
-                <TableCell >{track.name}</TableCell>
-                <TableCell >{track.artist}</TableCell>
+                <TableCell>{track.name}</TableCell>
+                <TableCell>{track.albumName}</TableCell>
+                <TableCell>{track.artist}</TableCell>
               </TableRow>
             ))}
           </TableBody>

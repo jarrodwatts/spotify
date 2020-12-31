@@ -13,7 +13,7 @@ export default function handler(req: any, res: any) {
       const { items } = await playlistData.json();
 
       const playlists = items.map((playlist: any) => ({
-        image: playlist.images[0].url,
+        image: (playlist.images || [])[0]?.url,
         name: playlist.name,
         description: playlist.description,
         owner: playlist.owner.display_name,

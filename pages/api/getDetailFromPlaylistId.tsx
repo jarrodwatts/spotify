@@ -27,10 +27,12 @@ export default function handler(req: any, res: any) {
         image: track.track.album.images[2].url,
         name: track.track.name,
         artist: track.track.artists[0].name,
+        artistDetail: track.track.artists,
         popularity: track.track.popularity,
         id: track.track.id,
         url: track.track.external_urls.spotify,
         preview_url: track.track.preview_url,
+        albumName: track.track.album.name,
       }));
 
       if (tracks) {

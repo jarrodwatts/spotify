@@ -4,7 +4,7 @@ import * as querystring from "querystring";
 export default function handler(req: any, res: any) {
   try {
     const scope =
-      "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-read-currently-playing user-top-read";
+      "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-read-currently-playing user-top-read playlist-modify-public playlist-modify-private";
 
     const spotifyUrl =
       "https://accounts.spotify.com/authorize?" +
